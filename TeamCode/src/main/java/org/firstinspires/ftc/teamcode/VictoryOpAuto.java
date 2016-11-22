@@ -43,6 +43,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 
 @Autonomous(name="VictoryOp - Auto", group="OpMods")  // @Autonomous(...) is the other common choice
@@ -53,6 +54,11 @@ public class VictoryOpAuto extends OpMode
     private DcMotor leftMotor = null;
     private DcMotor rightMotor = null;
 
+    private DcMotor leftGrab = null;
+    private DcMotor rightGrab = null;
+
+    private int CurrentStep = 0;
+
 
     @Override
     public void init() {
@@ -60,7 +66,10 @@ public class VictoryOpAuto extends OpMode
 
         leftMotor = hardwareMap.dcMotor.get("left motor");
         rightMotor  = hardwareMap.dcMotor.get("right motor");
-        
+
+        leftGrab = hardwareMap.dcMotor.get("left grab");
+        rightGrab  = hardwareMap.dcMotor.get("right grab");
+
     }
 
     @Override
@@ -79,13 +88,30 @@ public class VictoryOpAuto extends OpMode
         leftMotor.setPower(1);
         rightMotor.setPower(1);
         telemetry.addData("Time", "Running: " + runtime.seconds() % 10);
-        if(runtime.seconds() % 10 <= 1){
+        telemetry.addData("Step", "CurrentStep: " + CurrentStep);
 
-            leftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-            rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        }else{
-            leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-            rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        if(runtime.seconds() > 43 && CurrentStep == 0){
+            CurrentStep = 1;
+        }
+
+        switch(CurrentStep){
+            case 0:{
+                leftMotor.setPower(1);
+                rightMotor.setPower(1);
+            }
+            case 1:{
+                leftMotor.setPower(0);
+                rightMotor.setPower(0);
+
+                if(runtime.seconds() >= 3.1){
+                    rightGrab.setPower(1);
+                }else if(runtime.seconds() >= 3.4){
+                    rightGrab.setPower(0);
+                }else{
+                    rightGrab.setPower(0);
+                }
+
+            }
         }
     }
 
